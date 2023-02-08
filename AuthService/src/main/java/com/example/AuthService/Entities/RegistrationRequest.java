@@ -13,5 +13,5 @@ public class RegistrationRequest {
     private String login;
     private String password;
     private String contactData;
-    private Long role;
+    private String role; // ROLE_MASTER, ROLE_CUSTOMER
 }
