@@ -24,6 +24,7 @@ public class User {
     private Long statusId;
     public User(RegistrationRequest request){
         this.login = request.getLogin();
-        this.role = request.getRole();
+        if(request.getRole().equals("ROLE_MASTER")) this.role = 1L;
+        else this.role = 2L;
     }
 }

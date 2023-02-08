@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface StatusRepo extends JpaRepository<Status,Long> {
+public interface StatusRepo extends JpaRepository<Status,Long>{
     Optional<Status> findById(Long id);
 }
