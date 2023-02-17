@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface DayOffExeptRepo extends JpaRepository<DayOffExept,Long> {
     List<DayOffExept> findAllByMasterId(Long masterId);
+    List<DayOffExept> findAllByMasterIdAndYearAndMonth(Long masterId,int year,int month);
 }

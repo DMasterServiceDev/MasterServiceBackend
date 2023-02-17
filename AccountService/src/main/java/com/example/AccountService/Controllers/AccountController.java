@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -33,13 +34,13 @@ public class AccountController {
             description = "Adding day off patter"
     )
     public ResponseEntity<Response> addPattern(@RequestHeader("username") String login,
-                                               @RequestBody PatternDto patternDto) {
+                                               @RequestBody List<PatternDto> patternDto) {
         Account acc = accService.findByLogin(login);
         Response response = new Response();
         if (acc == null) {
             response.setAnswer("Something went wrong");
         } else {
-            timetableService.addPattern(acc.getId(), patternDto);
+            timetableService.addListPatterns(acc.getId(), patternDto);
             response.setAnswer("Pattern successfully add");
         }
         return ResponseEntity.ok(response);
@@ -48,61 +49,64 @@ public class AccountController {
     @Operation(
             description = "Getting list of patterns"
     )
-    public List<PatternDto> patterns(@RequestHeader("username")String login){
+    public List<PatternDto> patterns(@RequestHeader("username")String login
+                                     ,@RequestParam("month") int month
+                                     ,@RequestParam("year") int year){
         Account acc = accService.findByLogin(login);
         if(acc == null) return null;
-        else return timetableService.findAllByMasterId(acc.getId());
+        else return timetableService.findAllByMasterIdAndMonthAndYear(acc.getId(), month, year);
     }
     @PostMapping("/exept/off")
     @Operation(
-            description = "Adding day off exeption"
+            description = "Adding on exeptions"
     )
-    public ResponseEntity<Response> addOffExeption(@RequestHeader("username") String login,
-                                                   @RequestBody ExeptDto exeption){
+    public ResponseEntity<Response> addOffExeptions(@RequestHeader("username") String login,
+                                                    @RequestBody List<ExeptDto> exeptions){
         Account acc = accService.findByLogin(login);
         Response response = new Response();
-        if (acc == null) {
-            response.setAnswer("Something went wrong");
-        } else {
-            timetableService.addDayOffExept(acc.getId(), exeption);
-            response.setAnswer("Pattern successfully add");
+        if(acc == null) response.setAnswer("Something went wrong");
+        else {
+            timetableService.addListExeptions(acc.getId(), exeptions,false);
+            response.setAnswer("Exeption successfully add");
         }
         return ResponseEntity.ok(response);
     }
     @GetMapping("/exept/off")
     @Operation(
-            description = "Getting list of day off exeptions"
+            description = "Get off exeptions in month"
     )
-    public List<ExeptDto> daysOff(@RequestHeader("username")String login){
+    public List<ExeptDto> getOffExeptions(@RequestHeader("username") String login
+                                        ,@RequestParam("month") int month
+                                        ,@RequestParam("year") int year){
         Account acc = accService.findByLogin(login);
         if(acc == null) return null;
-        else return timetableService.findAllDayOffExept(acc.getId());
+        else return timetableService.getAllDayOffExeptInMonth(acc.getId(),year,month);
     }
+
     @PostMapping("/exept/on")
     @Operation(
-            description = "Adding day on exeption"
+            description = "Adding on exeptions"
     )
-    public ResponseEntity<Response> addOnExeption(@RequestHeader("username") String login,
-                                                  @RequestBody ExeptDto exeption){
+    public ResponseEntity<Response> addOnExeptions(@RequestHeader("username") String login,
+                                                   @RequestBody List<ExeptDto> exeptions){
         Account acc = accService.findByLogin(login);
         Response response = new Response();
-        if (acc == null) {
-            response.setAnswer("Something went wrong");
-        } else {
-            timetableService.addDayOnExept(acc.getId(), exeption);
-            response.setAnswer("Pattern successfully add");
+        if(acc == null) response.setAnswer("Something went wrong");
+        else {
+            timetableService.addListExeptions(acc.getId(), exeptions,true);
+            response.setAnswer("Exeption successfully add");
         }
         return ResponseEntity.ok(response);
     }
     @GetMapping("/exept/on")
     @Operation(
-            description = "Getting list of day on exeptions"
+            description = "Get on exeptions in month"
     )
-    public List<ExeptDto> daysOn(@RequestHeader("username")String login){
+    public List<ExeptDto> getOnExeptions(@RequestHeader("username") String login
+                                        ,@RequestParam("month") int month
+                                        ,@RequestParam("year") int year){
         Account acc = accService.findByLogin(login);
         if(acc == null) return null;
-        else return timetableService.findAllDayOnExept(acc.getId());
+        else return timetableService.getAllDayOnExeptInMonth(acc.getId(),year,month);
     }
-
-
 }
