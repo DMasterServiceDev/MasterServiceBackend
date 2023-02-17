@@ -7,7 +7,6 @@ import com.example.AuthService.Entities.AuthResponse;
 import com.example.AuthService.Services.AuthService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(value = "/auth")
 public class AuthController {
-    @Autowired
-    private AmqpTemplate amqpTemplate;
     private final AuthService authService;
     private ObjectMapper mapper = new ObjectMapper();
     @Autowired
