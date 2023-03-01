@@ -82,8 +82,77 @@ public class TimetableServiceImpl implements TimetableService{
     public List<ExeptDto> addListExeptions(Long masterId, List<ExeptDto> exeptions, boolean type) {
         List<ExeptDto> separated = this.separate(exeptions);
         for(ExeptDto exept:separated){
-            if(type == false) dayOffExeptRepo.save(new DayOffExept(exept,masterId));
-            else dayOnExeptRepo.save(new DayOnExept(exept,masterId));
+            if(type == false){ // adding off exeptions
+                DayOffExept curExept = new DayOffExept(exept,masterId);
+                System.out.println(exept);
+                List<DayOnExept> oldOnExeptions = dayOnExeptRepo.findAllByMasterIdInInterval(masterId,exept.getStartY(),exept.getStartM(),exept.getStartD(),exept.getFinishD());
+                if(oldOnExeptions.size()!=0){
+                    for(DayOnExept temp:oldOnExeptions){
+                        if(temp.getStart() < exept.getStartD() && temp.getFinish() > exept.getFinishD()){
+                            DayOnExept left = new DayOnExept(masterId,exept.getStartY(),exept.getStartM(),temp.getStart(),exept.getStartD()-1);
+                            DayOnExept right = new DayOnExept(masterId,exept.getStartY(),exept.getStartM(),exept.getFinishD()+1,temp.getFinish());
+                            dayOnExeptRepo.save(left);
+                            dayOnExeptRepo.save(right);
+                            dayOnExeptRepo.delete(temp);
+                        }
+                        else if(temp.getStart() >= exept.getStartD() && temp.getFinish() <= exept.getFinishD()) {
+                            dayOnExeptRepo.delete(temp);
+                        }
+                        else if(temp.getStart() < exept.getStartD() && temp.getFinish() <= exept.getFinishD()){
+                            DayOnExept left = new DayOnExept(masterId,exept.getStartY(),exept.getStartM(), temp.getStart(), exept.getStartD()-1);
+                            dayOnExeptRepo.save(left);
+                            dayOnExeptRepo.delete(temp);
+                        }
+                        else if(temp.getStart() >= exept.getStartD() && temp.getFinish() > exept.getFinishD()){
+                            DayOnExept right = new DayOnExept(masterId,exept.getStartY(),exept.getStartM(),exept.getFinishD()+1,temp.getFinish());
+                            dayOnExeptRepo.save(right);
+                            dayOnExeptRepo.delete(temp);
+                        }
+                    }
+                }
+                List<DayOffExept> oldOffExeptions = dayOffExeptRepo.findAllByMasterIdInInterval(masterId,exept.getStartY(),exept.getStartM(),exept.getStartD(),exept.getFinishD());
+                for (DayOffExept temp:oldOffExeptions) {
+                    if(temp.getStart() < curExept.getStart()) curExept.setStart(temp.getStart());
+                    if(temp.getFinish() > curExept.getFinish()) curExept.setFinish(temp.getFinish());
+                    dayOffExeptRepo.delete(temp);
+                }
+                dayOffExeptRepo.save(curExept);
+            }
+            else{ // adding on exeptions
+                DayOnExept curExept = new DayOnExept(exept,masterId);
+                List<DayOffExept> oldOffExeptions = dayOffExeptRepo.findAllByMasterIdInInterval(masterId,exept.getStartY(),exept.getStartM(),exept.getStartD(),exept.getFinishD());
+                if(oldOffExeptions.size()!=0){
+                    for(DayOffExept temp:oldOffExeptions){
+                        if(temp.getStart() < exept.getStartD() && temp.getFinish() > exept.getFinishD()){
+                            DayOffExept left = new DayOffExept(masterId,exept.getStartY(),exept.getStartM(),temp.getStart(),exept.getStartD()-1);
+                            DayOffExept right = new DayOffExept(masterId,exept.getStartY(),exept.getStartM(),exept.getFinishD()+1,temp.getFinish());
+                            dayOffExeptRepo.save(left);
+                            dayOffExeptRepo.save(right);
+                            dayOffExeptRepo.delete(temp);
+                        }
+                        else if(temp.getStart() >= exept.getStartD() && temp.getFinish() <= exept.getFinishD()) {
+                            dayOffExeptRepo.delete(temp);
+                        }
+                        else if(temp.getStart() < exept.getStartD() && temp.getFinish() <= exept.getFinishD()){
+                            DayOffExept left = new DayOffExept(masterId,exept.getStartY(),exept.getStartM(), temp.getStart(), exept.getStartD()-1);
+                            dayOffExeptRepo.save(left);
+                            dayOffExeptRepo.delete(temp);
+                        }
+                        else if(temp.getStart() >= exept.getStartD() && temp.getFinish() > exept.getFinishD()){
+                            DayOffExept right = new DayOffExept(masterId,exept.getStartY(),exept.getStartM(),exept.getFinishD()+1,temp.getFinish());
+                            dayOffExeptRepo.save(right);
+                            dayOffExeptRepo.delete(temp);
+                        }
+                    }
+                }
+                List<DayOnExept> oldOnExeptions = dayOnExeptRepo.findAllByMasterIdInInterval(masterId,exept.getStartY(),exept.getStartM(),exept.getStartD(),exept.getFinishD());
+                for (DayOnExept temp:oldOnExeptions) {
+                    if(temp.getStart() < curExept.getStart()) curExept.setStart(temp.getStart());
+                    if(temp.getFinish() > curExept.getFinish()) curExept.setFinish(temp.getFinish());
+                    dayOnExeptRepo.delete(temp);
+                }
+                dayOnExeptRepo.save(curExept);
+            }
         }
         return exeptions;
     }
@@ -104,6 +173,7 @@ public class TimetableServiceImpl implements TimetableService{
         List<DayOffExept> exeptions = dayOffExeptRepo.findAllByMasterIdAndYearAndMonth(masterId, year, month);
         List<ExeptDto> answer = new ArrayList<>();
         for(DayOffExept exept:exeptions) answer.add(new ExeptDto(exept));
+        System.out.println(dayOffExeptRepo.findAllByMasterIdInInterval(masterId,year,month,13,20));
         return answer;
     }
 
