@@ -34,4 +34,11 @@ public class DayOnExept {
         this.start = exeptDto.getStartD();
         this.finish = exeptDto.getFinishD();
     }
+    public DayOnExept(Long masterId,int year,int month,int start,int finish){
+        this.masterId = masterId;
+        this.year = year;
+        this.month = month;
+        this.start = start;
+        this.finish = finish;
+    }
 }
